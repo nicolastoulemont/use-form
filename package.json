@@ -31,11 +31,11 @@
     "singleQuote": true,
     "trailingComma": "es5"
   },
-  "name": "use-form",
+  "name": "@nicolastoulemont/use-form",
   "author": "Nicolas Toulemont",
   "repository": {
     "type": "git",
-    "url": "https://github.com/nicolastoulemont/use-form.git"
+    "url": "git+https://github.com/nicolastoulemont/use-form.git"
   },
   "homepage": "https://github.com/nicolastoulemont/use-form",
   "keywords": [
@@ -56,5 +56,13 @@
     "tsdx": "^0.13.2",
     "tslib": "^1.11.1",
     "typescript": "^3.8.3"
+  },
+  "description": "Congrats! You just saved yourself hours of work by bootstrapping this project with TSDX. Let’s get you oriented with what’s here and how to use it.",
+  "bugs": {
+    "url": "https://github.com/nicolastoulemont/use-form/issues"
+  },
+  "directories": {
+    "example": "example",
+    "test": "test"
   }
 }
