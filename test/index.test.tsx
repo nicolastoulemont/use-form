@@ -5,28 +5,19 @@ import '@testing-library/jest-dom/extend-expect';
 import { useForm, useFormField } from '../src';
 
 function BasicComponent() {
-  const {
-    values,
-    setValues,
-    errors,
-    setErrors,
-    onChange,
-    onBlur,
-    onSubmit,
-    deleteVal,
-    deleteErr,
-    resetValues,
-    resetErrors,
-    resetForm,
-  } = useForm();
-
   const required = (value: any) =>
     typeof value === 'undefined' || value === '' ? 'Required' : undefined;
 
   const hasAbc = (value: any) =>
     value.includes('abc') ? 'Has abc' : undefined;
 
-  const fields: Array<useFormField> = [
+  const initialFields: Array<useFormField> = [
+    {
+      name: 'reset',
+      listener: {
+        onChange: [() => resetFields()],
+      },
+    },
     {
       name: 'email',
       listener: {
@@ -45,10 +36,44 @@ function BasicComponent() {
         onSubmit: [required],
       },
     },
+    {
+      name: 'add',
+      listener: {
+        onChange: [() => addField({ name: 'new_field' }, initialFields.length)],
+      },
+    },
+    {
+      name: 'remove',
+      listener: {
+        onChange: [() => removeField('first_name')],
+      },
+    },
+    {
+      name: 'first_name',
+    },
   ];
 
+  const {
+    values,
+    setValues,
+    errors,
+    setErrors,
+    fields,
+    onChange,
+    onBlur,
+    onSubmit,
+    deleteVal,
+    deleteErr,
+    resetValues,
+    resetErrors,
+    resetForm,
+    removeField,
+    addField,
+    resetFields,
+  } = useForm({ initialFields });
+
   function handleSubmit() {
-    onSubmit(fields);
+    onSubmit();
   }
 
   return (
@@ -119,7 +144,7 @@ function BasicComponent() {
 
 describe('Testing hook fns', () => {
   // Basic functionning
-  it('Input and value', async () => {
+  it('Input and value', () => {
     const { getByTestId } = render(<BasicComponent />);
     const email = getByTestId('email');
     fireEvent.change(email, { target: { value: 'test@test.com' } });
@@ -128,7 +153,7 @@ describe('Testing hook fns', () => {
   });
 
   // Validation
-  it('onChange validation', async () => {
+  it('onChange validation', () => {
     const { getByTestId } = render(<BasicComponent />);
     const email = getByTestId('email');
     fireEvent.change(email, { target: { value: 'abc' } });
@@ -136,7 +161,7 @@ describe('Testing hook fns', () => {
     expect(emailError).toBeVisible();
   });
 
-  it('onBlur validation', async () => {
+  it('onBlur validation', () => {
     const { getByTestId } = render(<BasicComponent />);
     const password = getByTestId('password');
     fireEvent.blur(password);
@@ -144,7 +169,7 @@ describe('Testing hook fns', () => {
     expect(passwordError).toBeVisible();
   });
 
-  it('onSubmit validation', async () => {
+  it('onSubmit validation', () => {
     const { getByTestId } = render(<BasicComponent />);
     const email = getByTestId('email');
     fireEvent.change(email, { target: { value: 'abc' } });
@@ -158,7 +183,7 @@ describe('Testing hook fns', () => {
   });
 
   // Deletes
-  it('Delete item value', async () => {
+  it('Delete item value', () => {
     const { getByTestId } = render(<BasicComponent />);
     const email = getByTestId('email');
     const password = getByTestId('password');
@@ -172,7 +197,7 @@ describe('Testing hook fns', () => {
     expect(password.value).toBe('');
   });
 
-  it('Delete errors', async () => {
+  it('Delete errors', () => {
     const { getByTestId } = render(<BasicComponent />);
     const email = getByTestId('email');
     const password = getByTestId('password');
@@ -191,7 +216,7 @@ describe('Testing hook fns', () => {
   });
 
   // Reset
-  it('Reset all items value', async () => {
+  it('Reset all items value', () => {
     const { getByTestId } = render(<BasicComponent />);
     const email = getByTestId('email');
     const password = getByTestId('password');
@@ -209,7 +234,7 @@ describe('Testing hook fns', () => {
     expect(address.value).toBe('');
   });
 
-  it('Reset all items errors', async () => {
+  it('Reset all items errors', () => {
     const { getByTestId } = render(<BasicComponent />);
     const email = getByTestId('email');
     const password = getByTestId('password');
@@ -233,7 +258,7 @@ describe('Testing hook fns', () => {
     expect(addressError).not.toBeInTheDocument();
   });
 
-  it('Reset values and errors', async () => {
+  it('Reset values and errors', () => {
     const { getByTestId } = render(<BasicComponent />);
     const email = getByTestId('email');
     const password = getByTestId('password');
@@ -260,7 +285,7 @@ describe('Testing hook fns', () => {
   });
 
   // Direct set
-  it('set items values', async () => {
+  it('set items values', () => {
     const { getByTestId } = render(<BasicComponent />);
     const email = getByTestId('email');
     const password = getByTestId('password');
@@ -272,7 +297,7 @@ describe('Testing hook fns', () => {
     expect(password.value).toBe('setpassword');
   });
 
-  it('set items errors', async () => {
+  it('set items errors', () => {
     const { getByTestId } = render(<BasicComponent />);
     const setErrBtn = getByTestId('set-err');
     fireEvent.click(setErrBtn);
@@ -281,5 +306,35 @@ describe('Testing hook fns', () => {
     const passwordError = getByTestId('password-error');
     expect(emailError).toBeVisible();
     expect(passwordError).toBeVisible();
+  });
+
+  // Add or remove fields
+  it('add field', () => {
+    const { getByTestId } = render(<BasicComponent />);
+    const addField = getByTestId('add');
+    fireEvent.change(addField, { target: { value: 'a' } });
+    const newField = getByTestId('new_field');
+    expect(newField).toBeVisible();
+  });
+
+  it('remove field', () => {
+    const { getByTestId } = render(<BasicComponent />);
+    const removeField = getByTestId('remove');
+    const firstName = getByTestId('first_name');
+    expect(firstName).toBeVisible();
+    fireEvent.change(removeField, { target: { value: 'a' } });
+    expect(firstName).not.toBeInTheDocument();
+  });
+
+  it('reset fields', () => {
+    const { getByTestId } = render(<BasicComponent />);
+    const resetField = getByTestId('reset');
+    const addField = getByTestId('add');
+    fireEvent.change(addField, { target: { value: 'a' } });
+    const newField = getByTestId('new_field');
+    expect(newField).toBeVisible();
+
+    fireEvent.change(resetField, { target: { value: 'a' } });
+    expect(newField).not.toBeInTheDocument();
   });
 });

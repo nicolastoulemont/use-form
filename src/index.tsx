@@ -16,7 +16,13 @@ export interface EventInfos {
   value: any;
 }
 
-export function useForm(state: { [key: string]: any } = {}) {
+export interface UseFormConfig {
+  initialFields: Array<useFormField>;
+  state?: { [key: string]: any } | undefined;
+}
+
+export function useForm({ state = {}, initialFields }: UseFormConfig) {
+  const [fields, setFields] = useState(initialFields);
   const [values, setValues] = useState<{ [key: string]: any }>(state);
   const [errors, setErrors] = useState<{ [key: string]: any }>({});
   const [hasSubmitted, setHasSubmitted] = useState<boolean>(false);
@@ -85,7 +91,7 @@ export function useForm(state: { [key: string]: any } = {}) {
   }
 
   // On Submit listener
-  function onSubmit(fields: Array<useFormField>) {
+  function onSubmit() {
     setHasSubmitted(true);
 
     let count = 0;
@@ -133,11 +139,28 @@ export function useForm(state: { [key: string]: any } = {}) {
     setValues({});
   }
 
+  const removeField = (name: string) => {
+    setFields(fields => fields.filter(field => field.name !== name));
+  };
+
+  const addField = (field: useFormField, index: number) => {
+    const newFields = [
+      ...fields.slice(0, index),
+      field,
+      ...fields.slice(index),
+    ];
+    setFields(newFields);
+  };
+
+  const resetFields = () => setFields(initialFields);
+
   return {
     values,
     setValues,
     errors,
     setErrors,
+    fields,
+    setFields,
     onChange,
     onBlur,
     onSubmit,
@@ -147,5 +170,8 @@ export function useForm(state: { [key: string]: any } = {}) {
     resetValues,
     resetErrors,
     resetForm,
+    removeField,
+    addField,
+    resetFields,
   };
 }
