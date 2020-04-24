@@ -57,7 +57,7 @@
     "tslib": "^1.11.1",
     "typescript": "^3.8.3"
   },
-  "description": "Congrats! You just saved yourself hours of work by bootstrapping this project with TSDX. Let’s get you oriented with what’s here and how to use it.",
+  "description": "Generic use-form utility hook with onChange, onBlur, onSubmit validation possibilities",
   "bugs": {
     "url": "https://github.com/nicolastoulemont/use-form/issues"
   },

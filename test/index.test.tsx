@@ -2,7 +2,7 @@ import * as React from 'react';
 import { render, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
-import { useForm, Field } from '../src';
+import { useForm, useFormField } from '../src';
 
 function BasicComponent() {
   const {
@@ -26,22 +26,22 @@ function BasicComponent() {
   const hasAbc = (value: any) =>
     value.includes('abc') ? 'Has abc' : undefined;
 
-  const fields: Array<Field> = [
+  const fields: Array<useFormField> = [
     {
       name: 'email',
-      validation: {
+      listener: {
         onChange: [hasAbc],
       },
     },
     {
       name: 'password',
-      validation: {
+      listener: {
         onBlur: [required],
       },
     },
     {
       name: 'address',
-      validation: {
+      listener: {
         onSubmit: [required],
       },
     },
@@ -60,10 +60,10 @@ function BasicComponent() {
             name={field.name}
             value={values[field.name] || ''}
             onChange={({ target: { name, value } }) =>
-              onChange({ name, value }, field.validation)
+              onChange({ name, value }, field.listener)
             }
             onBlur={({ target: { name, value } }) =>
-              onBlur({ name, value }, field.validation)
+              onBlur({ name, value }, field.listener)
             }
           />
           {errors[field.name] && (

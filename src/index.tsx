@@ -1,14 +1,14 @@
 import { useState } from 'react';
 
-export interface ValidationConfig {
+export interface ListenerConfig {
   onSubmit?: Array<Function>;
   onChange?: Array<Function>;
   onBlur?: Array<Function>;
 }
 
-export interface Field {
+export interface useFormField {
   name: string;
-  validation?: ValidationConfig | undefined;
+  listener?: ListenerConfig | undefined;
 }
 
 export interface EventInfos {
@@ -19,7 +19,7 @@ export interface EventInfos {
 export function useForm(state: { [key: string]: any } = {}) {
   const [values, setValues] = useState<{ [key: string]: any }>(state);
   const [errors, setErrors] = useState<{ [key: string]: any }>({});
-  const [hasSubmit, setHasSubmit] = useState<boolean>(false);
+  const [hasSubmitted, setHasSubmitted] = useState<boolean>(false);
 
   // Shared
   function runFns(fns: Array<Function>, value: any): undefined | any {
@@ -37,26 +37,23 @@ export function useForm(state: { [key: string]: any } = {}) {
     return err;
   }
 
-  function getFns(validation: ValidationConfig | undefined): Array<Function> {
+  function getFns(listener: ListenerConfig | undefined): Array<Function> {
     let fns: Array<Function> = [];
-    if (validation?.onChange) {
-      fns = [...validation.onChange];
+    if (listener?.onChange) {
+      fns = [...listener.onChange];
     }
-    if (validation?.onBlur) {
-      fns = [...fns, ...validation.onBlur];
+    if (listener?.onBlur) {
+      fns = [...fns, ...listener.onBlur];
     }
-    if (validation?.onSubmit) {
-      fns = [...fns, ...validation.onSubmit];
+    if (listener?.onSubmit) {
+      fns = [...fns, ...listener.onSubmit];
     }
     return fns;
   }
 
   // On Change
-  function onChange(
-    infos: EventInfos,
-    validation: ValidationConfig | undefined
-  ) {
-    hasSubmit && setHasSubmit(false);
+  function onChange(infos: EventInfos, listener: ListenerConfig | undefined) {
+    hasSubmitted && setHasSubmitted(false);
     const { name, value } = infos;
     // Remove field error on change
     if (errors[name]) setErrors({ ...errors, [name]: undefined });
@@ -67,38 +64,38 @@ export function useForm(state: { [key: string]: any } = {}) {
       [name]: value,
     });
 
-    // If onChange validation, run it
-    if (validation?.onChange) {
+    // If onChange listener, run it
+    if (listener?.onChange) {
       setErrors({
         ...errors,
-        [name]: runFns(validation.onChange, value),
+        [name]: runFns(listener.onChange, value),
       });
     }
   }
 
-  function onBlur(infos: EventInfos, validation: ValidationConfig | undefined) {
+  function onBlur(infos: EventInfos, listener: ListenerConfig | undefined) {
     const { name, value } = infos;
 
-    if (validation?.onBlur) {
+    if (listener?.onBlur) {
       setErrors({
         ...errors,
-        [name]: runFns(validation.onBlur, value),
+        [name]: runFns(listener.onBlur, value),
       });
     }
   }
 
-  // On Submit validation
-  function onSubmit(fields: Array<Field>) {
-    setHasSubmit(true);
+  // On Submit listener
+  function onSubmit(fields: Array<useFormField>) {
+    setHasSubmitted(true);
 
     let count = 0;
     let submitErrors: { [key: string]: any } = {};
 
     fields.forEach(field => {
-      if (field.validation) {
-        /* Reconcile onChange and onSubmit validations: 
-        onChange validation is also run on onSubmit */
-        const fns = getFns(field.validation);
+      if (field.listener) {
+        /* Reconcile onChange and onSubmit listeners: 
+        onChange listener is also run on onSubmit */
+        const fns = getFns(field.listener);
 
         /* Build the submitErrors object in order to update the state later */
         const errors = runFns(fns, values[field.name]);
@@ -144,7 +141,7 @@ export function useForm(state: { [key: string]: any } = {}) {
     onChange,
     onBlur,
     onSubmit,
-    hasSubmit,
+    hasSubmitted,
     deleteVal,
     deleteErr,
     resetValues,
