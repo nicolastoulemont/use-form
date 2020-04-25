@@ -6,7 +6,7 @@ This use-form utility hook aims to facilitate the handling of complex forms vali
 
 This is a work in progress tool and mainly aimed at my personal use accross my projects.
 
-### Installation
+## Installation
 
 ```bash
 npm install @nicolastoulemont/use-form
@@ -14,7 +14,7 @@ or
 yarn add @nicolastoulemont/use-form
 ```
 
-### Usage
+## Usage
 
 The useForm hook require a object param containing the fields options array and optionally the initial values.
 
@@ -28,7 +28,7 @@ The useForm return a fields array that can then be used as following :
 
 ![](img/form_component.png)
 
-### Api
+## Api
 
 The useForm hooks returns the following :
 
@@ -181,15 +181,15 @@ function addField(field: FieldOptions, index: number) {
 const resetFields = () => setFields(initialFields);
 ```
 
-### Built with
+## Built with
 
 - [tsdx](https://github.com/jaredpalmer/tsdx)
 - [React](https://github.com/facebook/react)
 
-### Versionning
+## Versionning
 
 This tool use [SemVer](http://semver.org/) for versioning.
 
-### Licence
+## Licence
 
 MIT
