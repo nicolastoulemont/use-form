@@ -93,7 +93,7 @@ function onBlur(infos: EventInfos) {
 }
 ```
 
-- onSubmit: Run all the fields onChange and onSubmit listeners. It also return the form validty (boolean) and the errors count.
+- onSubmit: Run all the fields onChange and onSubmit listeners. It also return the form validity (boolean) and the errors count.
 
 ```typescript
 function onSubmit() {
