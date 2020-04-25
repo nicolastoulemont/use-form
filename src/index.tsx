@@ -1,14 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
-export interface ListenerConfig {
+export interface Listener {
   onSubmit?: Array<Function>;
   onChange?: Array<Function>;
   onBlur?: Array<Function>;
-}
-
-export interface useFormField {
-  name: string;
-  listener?: ListenerConfig | undefined;
 }
 
 export interface EventInfos {
@@ -16,16 +11,44 @@ export interface EventInfos {
   value: any;
 }
 
-export interface UseFormConfig {
-  initialFields: Array<useFormField>;
+export interface FieldOptions {
+  name: string;
+  listener?: Listener | undefined;
+  [key: string]: any;
+}
+
+export type FieldsRecord = Record<string | number, FieldOptions>;
+
+export function recordToArray(record: FieldsRecord): Array<FieldOptions> {
+  let arr: Array<FieldOptions> = [];
+  for (const key in record) {
+    arr.push({ ...record[key], name: key.toString() });
+  }
+  return arr;
+}
+
+export function arrayToRecord(array: Array<FieldOptions>) {
+  return array.reduce((record: FieldsRecord, field: FieldOptions) => {
+    record[field.name] = { ...field };
+    return record;
+  }, {});
+}
+
+export interface UseForm {
+  initialFields: Array<FieldOptions>;
   state?: { [key: string]: any } | undefined;
 }
 
-export function useForm({ state = {}, initialFields }: UseFormConfig) {
-  const [fields, setFields] = useState(initialFields);
+export function useForm({ state = {}, initialFields }: UseForm) {
+  const [record, setRecord] = useState<FieldsRecord>({});
+  const [fields, setFields] = useState<Array<FieldOptions>>(initialFields);
   const [values, setValues] = useState<{ [key: string]: any }>(state);
   const [errors, setErrors] = useState<{ [key: string]: any }>({});
   const [hasSubmitted, setHasSubmitted] = useState<boolean>(false);
+
+  useEffect(() => {
+    setRecord(arrayToRecord(fields));
+  }, [fields]);
 
   // Shared
   function runFns(fns: Array<Function>, value: any): undefined | any {
@@ -43,7 +66,7 @@ export function useForm({ state = {}, initialFields }: UseFormConfig) {
     return err;
   }
 
-  function getFns(listener: ListenerConfig | undefined): Array<Function> {
+  function getFns(listener: Listener | undefined): Array<Function> {
     let fns: Array<Function> = [];
     if (listener?.onChange) {
       fns = [...listener.onChange];
@@ -58,7 +81,7 @@ export function useForm({ state = {}, initialFields }: UseFormConfig) {
   }
 
   // On Change
-  function onChange(infos: EventInfos, listener: ListenerConfig | undefined) {
+  function onChange(infos: EventInfos) {
     hasSubmitted && setHasSubmitted(false);
     const { name, value } = infos;
     // Remove field error on change
@@ -71,21 +94,24 @@ export function useForm({ state = {}, initialFields }: UseFormConfig) {
     });
 
     // If onChange listener, run it
-    if (listener?.onChange) {
+    if (record[name].listener?.onChange) {
       setErrors({
         ...errors,
-        [name]: runFns(listener.onChange, value),
+        [name]: runFns(
+          record[name].listener?.onChange as Array<Function>,
+          value
+        ),
       });
     }
   }
 
-  function onBlur(infos: EventInfos, listener: ListenerConfig | undefined) {
+  function onBlur(infos: EventInfos) {
     const { name, value } = infos;
 
-    if (listener?.onBlur) {
+    if (record[name].listener?.onBlur) {
       setErrors({
         ...errors,
-        [name]: runFns(listener.onBlur, value),
+        [name]: runFns(record[name].listener?.onBlur as Array<Function>, value),
       });
     }
   }
@@ -143,7 +169,7 @@ export function useForm({ state = {}, initialFields }: UseFormConfig) {
     setFields(fields => fields.filter(field => field.name !== name));
   };
 
-  const addField = (field: useFormField, index: number) => {
+  const addField = (field: FieldOptions, index: number) => {
     const newFields = [
       ...fields.slice(0, index),
       field,

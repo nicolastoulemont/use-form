@@ -57,7 +57,7 @@
     "tslib": "^1.11.1",
     "typescript": "^3.8.3"
   },
-  "description": "Generic use-form utility hook with onChange, onBlur, onSubmit validation possibilities",
+  "description": "Generic use-form utility hook with onChange, onBlur, onSubmit listeners possibilities",
   "bugs": {
     "url": "https://github.com/nicolastoulemont/use-form/issues"
   },
