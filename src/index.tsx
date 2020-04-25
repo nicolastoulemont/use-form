@@ -165,18 +165,18 @@ export function useForm({ state = {}, initialFields }: UseForm) {
     setValues({});
   }
 
-  const removeField = (name: string) => {
+  function removeField(name: string) {
     setFields(fields => fields.filter(field => field.name !== name));
-  };
+  }
 
-  const addField = (field: FieldOptions, index: number) => {
+  function addField(field: FieldOptions, index: number) {
     const newFields = [
       ...fields.slice(0, index),
       field,
       ...fields.slice(index),
     ];
     setFields(newFields);
-  };
+  }
 
   const resetFields = () => setFields(initialFields);
 
