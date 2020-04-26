@@ -165,17 +165,23 @@ export function useForm({ state = {}, initialFields }: UseForm) {
     setValues({});
   }
 
-  function removeField(name: string) {
-    setFields(fields => fields.filter(field => field.name !== name));
+  function removeFields(names: Array<string> | string) {
+    if (typeof names === 'string') {
+      setFields(fields => fields.filter(field => field.name !== names));
+    } else {
+      setFields(fields =>
+        fields.filter(field => names.indexOf(field.name) === -1)
+      );
+    }
   }
 
-  function addField(field: FieldOptions, index: number) {
-    const newFields = [
+  function addFields(newFields: Array<FieldOptions>, index: number) {
+    const updatedFields = [
       ...fields.slice(0, index),
-      field,
+      ...newFields,
       ...fields.slice(index),
     ];
-    setFields(newFields);
+    setFields(updatedFields);
   }
 
   const resetFields = () => setFields(initialFields);
@@ -196,8 +202,8 @@ export function useForm({ state = {}, initialFields }: UseForm) {
     resetValues,
     resetErrors,
     resetForm,
-    removeField,
-    addField,
+    removeFields,
+    addFields,
     resetFields,
   };
 }

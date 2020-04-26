@@ -158,20 +158,30 @@ function resetForm() {
 }
 ```
 
-- removeField: Remove field from the fields array
+- removeFields: Remove one or more field from the fields array
 
 ```typescript
-function removeField(name: string) {
-  setFields(fields => fields.filter(field => field.name !== name));
+function removeFields(names: Array<string> | string) {
+  if (typeof names === 'string') {
+    setFields(fields => fields.filter(field => field.name !== names));
+  } else {
+    setFields(fields =>
+      fields.filter(field => names.indexOf(field.name) === -1)
+    );
+  }
 }
 ```
 
-- addField: Add field to the fields array
+- addFields: Add one or more field to the fields array
 
 ```typescript
-function addField(field: FieldOptions, index: number) {
-  const newFields = [...fields.slice(0, index), field, ...fields.slice(index)];
-  setFields(newFields);
+function addFields(newFields: Array<FieldOptions>, index: number) {
+  const updatedFields = [
+    ...fields.slice(0, index),
+    ...newFields,
+    ...fields.slice(index),
+  ];
+  setFields(updatedFields);
 }
 ```
 

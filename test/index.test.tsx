@@ -45,13 +45,33 @@ function BasicComponent() {
     {
       name: 'add',
       listener: {
-        onChange: [() => addField({ name: 'new_field' }, initialFields.length)],
+        onChange: [
+          () => addFields([{ name: 'new_field' }], initialFields.length),
+        ],
+      },
+    },
+    {
+      name: 'add-multiple',
+      listener: {
+        onChange: [
+          () =>
+            addFields(
+              [{ name: 'new_field_1' }, { name: 'new_field_2' }],
+              initialFields.length
+            ),
+        ],
       },
     },
     {
       name: 'remove',
       listener: {
-        onChange: [() => removeField('first_name')],
+        onChange: [() => removeFields('first_name')],
+      },
+    },
+    {
+      name: 'remove_multiple',
+      listener: {
+        onChange: [() => removeFields(['new_field_1', 'new_field_2'])],
       },
     },
     {
@@ -73,8 +93,8 @@ function BasicComponent() {
     resetValues,
     resetErrors,
     resetForm,
-    removeField,
-    addField,
+    removeFields,
+    addFields,
     resetFields,
   } = useForm({ initialFields });
 
@@ -321,6 +341,16 @@ describe('Testing hook fns', () => {
     expect(newField).toBeVisible();
   });
 
+  it('add multiple fields', () => {
+    const { getByTestId } = render(<BasicComponent />);
+    const addMultiple = getByTestId('add-multiple');
+    fireEvent.change(addMultiple, { target: { value: 'a' } });
+    const newFieldOne = getByTestId('new_field_1');
+    const newFieldTwo = getByTestId('new_field_2');
+    expect(newFieldOne).toBeVisible();
+    expect(newFieldTwo).toBeVisible();
+  });
+
   it('remove field', () => {
     const { getByTestId } = render(<BasicComponent />);
     const removeField = getByTestId('remove');
@@ -328,6 +358,20 @@ describe('Testing hook fns', () => {
     expect(firstName).toBeVisible();
     fireEvent.change(removeField, { target: { value: 'a' } });
     expect(firstName).not.toBeInTheDocument();
+  });
+
+  it('remove multiple fields', () => {
+    const { getByTestId } = render(<BasicComponent />);
+    const removeFieldMultiple = getByTestId('remove_multiple');
+    const addMultiple = getByTestId('add-multiple');
+    fireEvent.change(addMultiple, { target: { value: 'a' } });
+    const newFieldOne = getByTestId('new_field_1');
+    const newFieldTwo = getByTestId('new_field_2');
+    expect(newFieldOne).toBeVisible();
+    expect(newFieldTwo).toBeVisible();
+    fireEvent.change(removeFieldMultiple, { target: { value: 'a' } });
+    expect(newFieldOne).not.toBeInTheDocument();
+    expect(newFieldTwo).not.toBeInTheDocument();
   });
 
   it('reset fields', () => {
