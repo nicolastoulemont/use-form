@@ -175,6 +175,18 @@ export function useForm({ state = {}, initialFields }: UseForm) {
     setFields(updatedFields)
   }
 
+  function changeField(fieldOptions: Partial<FieldOptions>, name: string) {
+    const updatedRecord = { ...record, [name]: { ...record[name], ...fieldOptions } }
+    const updatedFields = recordToArray(updatedRecord)
+    setFields(updatedFields)
+  }
+
+  function moveField(from: number, to: number) {
+    const newFields = [...fields]
+    newFields.splice(to, 0, newFields.splice(from, 1)[0])
+    setFields(newFields)
+  }
+
   const resetFields = () => setFields(initialFields)
 
   return {
@@ -195,6 +207,8 @@ export function useForm({ state = {}, initialFields }: UseForm) {
     resetForm,
     removeFields,
     addFields,
+    changeField,
+    moveField,
     resetFields,
   }
 }

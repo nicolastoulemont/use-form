@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { render, fireEvent } from '@testing-library/react'
 import '@testing-library/jest-dom/extend-expect'
-
+import { create } from 'react-test-renderer'
 import { useForm, FieldOptions } from '../src'
 
 function BasicComponent() {
@@ -56,6 +56,10 @@ function BasicComponent() {
       },
     },
     {
+      name: 'change_field',
+      label: 'change_label',
+    },
+    {
       name: 'remove',
       listener: {
         onChange: [() => removeFields('first_name')],
@@ -88,6 +92,8 @@ function BasicComponent() {
     resetForm,
     removeFields,
     addFields,
+    changeField,
+    moveField,
     resetFields,
   } = useForm({ initialFields })
 
@@ -99,6 +105,7 @@ function BasicComponent() {
     <div>
       {fields.map((field, index) => (
         <div key={index}>
+          {field.label && <label data-testid={field.label}>{field.label}</label>}
           <input
             data-testid={field.name}
             name={field.name}
@@ -134,6 +141,15 @@ function BasicComponent() {
       </button>
       <button data-testid="reset-form" onClick={() => resetForm()}>
         Reset Form
+      </button>
+      <button
+        data-testid="change-field"
+        onClick={() => changeField({ label: 'changed_label' }, 'change_field')}
+      >
+        Change Field
+      </button>
+      <button data-testid="move-field" onClick={() => moveField(2, 5)}>
+        Move Field
       </button>
       <button
         data-testid="set-val"
@@ -324,6 +340,26 @@ describe('Testing hook fns', () => {
     fireEvent.change(addField, { target: { value: 'a' } })
     const newField = getByTestId('new_field')
     expect(newField).toBeVisible()
+  })
+
+  it('change one field', () => {
+    const { getByTestId } = render(<BasicComponent />)
+    const changeField = getByTestId('change-field')
+    fireEvent.click(changeField)
+    const changedField = getByTestId('changed_label')
+    expect(changedField).toBeVisible()
+  })
+
+  it('Move one field', () => {
+    const { getByTestId } = render(<BasicComponent />)
+    const component = create(<BasicComponent />)
+    const init = JSON.stringify(component)
+    const moveField = getByTestId('move-field')
+    fireEvent.click(moveField)
+    const changed = JSON.stringify(component)
+    console.log(init)
+    console.log(changed)
+    expect(init !== changed)
   })
 
   it('add multiple fields', () => {

@@ -50,25 +50,25 @@ The useForm hooks returns the following :
 
 ```typescript
 export interface EventInfos {
-  name: string;
-  value: any;
+  name: string
+  value: any
 }
 
 function onChange(infos: EventInfos) {
-  hasSubmitted && setHasSubmitted(false);
-  const { name, value } = infos;
-  if (errors[name]) setErrors({ ...errors, [name]: undefined });
+  hasSubmitted && setHasSubmitted(false)
+  const { name, value } = infos
+  if (errors[name]) setErrors({ ...errors, [name]: undefined })
 
   setValues({
     ...values,
     [name]: value,
-  });
+  })
 
   if (record[name].listener?.onChange) {
     setErrors({
       ...errors,
       [name]: runFns(record[name].listener?.onChange as Array<Function>, value),
-    });
+    })
   }
 }
 ```
@@ -77,18 +77,18 @@ function onChange(infos: EventInfos) {
 
 ```typescript
 export interface EventInfos {
-  name: string;
-  value: any;
+  name: string
+  value: any
 }
 
 function onBlur(infos: EventInfos) {
-  const { name, value } = infos;
+  const { name, value } = infos
 
   if (record[name].listener?.onBlur) {
     setErrors({
       ...errors,
       [name]: runFns(record[name].listener?.onBlur as Array<Function>, value),
-    });
+    })
   }
 }
 ```
@@ -97,23 +97,23 @@ function onBlur(infos: EventInfos) {
 
 ```typescript
 function onSubmit() {
-  setHasSubmitted(true);
+  setHasSubmitted(true)
 
-  let count = 0;
-  let submitErrors: { [key: string]: any } = {};
+  let count = 0
+  let submitErrors: { [key: string]: any } = {}
 
   fields.forEach(field => {
     if (field.listener) {
-      const fns = getFns(field.listener);
-      const errors = runFns(fns, values[field.name]);
-      submitErrors[field.name] = errors;
+      const fns = getFns(field.listener)
+      const errors = runFns(fns, values[field.name])
+      submitErrors[field.name] = errors
       if (errors) {
-        count++;
+        count++
       }
     }
-  });
-  setErrors(submitErrors);
-  return [count === 0, count];
+  })
+  setErrors(submitErrors)
+  return [count === 0, count]
 }
 ```
 
@@ -122,7 +122,7 @@ function onSubmit() {
 
 ```typescript
 function deleteVal(key: string) {
-  setValues(values => ({ ...values, [key]: undefined }));
+  setValues(values => ({ ...values, [key]: undefined }))
 }
 ```
 
@@ -133,28 +133,28 @@ function deleteErr(key: string) {
   setErrors(errors => ({
     ...errors,
     [key]: undefined,
-  }));
+  }))
 }
 ```
 
 - resetValues: Helper function to reset the values state to an empty object.
 
 ```typescript
-const resetValues = () => setValues({});
+const resetValues = () => setValues({})
 ```
 
 - resetErrors: Helper function to reset the errors state to an empty object.
 
 ```typescript
-const resetErrors = () => setErrors({});
+const resetErrors = () => setErrors({})
 ```
 
 - resetForm: Helper function to reset both the errors and values states to an empty object.
 
 ```typescript
 function resetForm() {
-  setErrors({});
-  setValues({});
+  setErrors({})
+  setValues({})
 }
 ```
 
@@ -163,11 +163,9 @@ function resetForm() {
 ```typescript
 function removeFields(names: Array<string> | string) {
   if (typeof names === 'string') {
-    setFields(fields => fields.filter(field => field.name !== names));
+    setFields(fields => fields.filter(field => field.name !== names))
   } else {
-    setFields(fields =>
-      fields.filter(field => names.indexOf(field.name) === -1)
-    );
+    setFields(fields => fields.filter(field => names.indexOf(field.name) === -1))
   }
 }
 ```
@@ -176,19 +174,35 @@ function removeFields(names: Array<string> | string) {
 
 ```typescript
 function addFields(newFields: Array<FieldOptions>, index: number) {
-  const updatedFields = [
-    ...fields.slice(0, index),
-    ...newFields,
-    ...fields.slice(index),
-  ];
-  setFields(updatedFields);
+  const updatedFields = [...fields.slice(0, index), ...newFields, ...fields.slice(index)]
+  setFields(updatedFields)
+}
+```
+
+- changeField: Update one field
+
+```typescript
+function changeField(fieldOptions: Partial<FieldOptions>, name: string) {
+  const updatedRecord = { ...record, [name]: { ...record[name], ...fieldOptions } }
+  const updatedFields = recordToArray(updatedRecord)
+  setFields(updatedFields)
+}
+```
+
+- moveField: Move a field in the array
+
+```typescript
+function moveField(from: number, to: number) {
+  const newFields = [...fields]
+  newFields.splice(to, 0, newFields.splice(from, 1)[0])
+  setFields(newFields)
 }
 ```
 
 - resetFields: Set the fields back to the initialFields array.
 
 ```typescript
-const resetFields = () => setFields(initialFields);
+const resetFields = () => setFields(initialFields)
 ```
 
 ## Built with
