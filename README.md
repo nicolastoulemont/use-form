@@ -20,13 +20,99 @@ The useForm hook require a object param containing the fields options array and 
 
 The field options must include at least a name property but can be expended to include other field related information such as its label, placeholder, type, etc.
 
-![](img/basic_listeners.png)
+```typescript
+interface Field extends FieldOptions {
+  label?: string
+}
+
+const required = (value: any) =>
+  typeof value === 'undefined' || value === '' ? 'Required' : undefined
+
+const hasAbc = (value: any) => (value.includes('abc') ? 'Has abc' : undefined)
+
+const initialFields: Array<Field> = [
+  {
+    name: 'email',
+    listener: {
+      onChange: [hasAbc],
+    },
+  },
+  {
+    name: 'password',
+    listener: {
+      onBlur: [required],
+    },
+  },
+  {
+    name: 'address',
+    listener: {
+      onSubmit: [required],
+    },
+  },
+  {
+    name: 'first_name',
+    label: 'firs_name_label',
+  },
+]
+```
 
 The listener object allow the user to insert an array of functions to be executed either on onChange, onBlur or onSubmit. Such functions have access to the field value.
 
 The useForm return a fields array that can then be used as following :
 
-![](img/form_component.png)
+```typescript
+interface Field extends FieldOptions {
+  label?: string
+}
+
+export function BasicComponent() {
+  const required = (value: any) =>
+    typeof value === 'undefined' || value === '' ? 'Required' : undefined
+
+  const hasAbc = (value: any) => (value.includes('abc') ? 'Has abc' : undefined)
+
+  const initialFields: Array<Field> = [
+    {
+      name: 'reset',
+      listener: {
+        onChange: [() => resetFields()],
+      },
+    },
+    /* ...fields */
+    {
+      name: 'address',
+      listener: {
+        onSubmit: [required],
+      },
+    },
+  ]
+
+  const { values, setValues, errors, setErrors, fields, onChange, onBlur, onSubmit } = useForm({
+    initialFields,
+  })
+
+  function handleSubmit() {
+    onSubmit()
+  }
+
+  return (
+    <div>
+      {fields.map(field => (
+        <div key={field.name}>
+          {field.label && <label>{field.label}</label>}
+          <input
+            name={field.name}
+            value={values[field.name] || ''}
+            onChange={({ target: { name, value } }) => onChange({ name, value })}
+            onBlur={({ target: { name, value } }) => onBlur({ name, value })}
+          />
+          {errors[field.name] && <div>{errors[field.name]}</div>}
+        </div>
+      ))}
+    </div>
+  )
+}
+```
 
 ## Api
 
