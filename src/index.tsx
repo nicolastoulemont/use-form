@@ -14,34 +14,33 @@ export interface EventInfos {
 export interface FieldOptions {
   name: string
   listener?: Listener | undefined
-  [key: string]: any
 }
 
-export type FieldsRecord = Record<string | number, FieldOptions>
+export type FieldsRecord<T extends FieldOptions> = Record<string | number, T>
 
-export function recordToArray(record: FieldsRecord): Array<FieldOptions> {
-  let arr: Array<FieldOptions> = []
+export function recordToArray<T extends FieldOptions>(record: FieldsRecord<T>): Array<T> {
+  let arr: Array<T> = []
   for (const key in record) {
     arr.push({ ...record[key], name: key.toString() })
   }
   return arr
 }
 
-export function arrayToRecord(array: Array<FieldOptions>) {
-  return array.reduce((record: FieldsRecord, field: FieldOptions) => {
+export function arrayToRecord<T extends FieldOptions>(array: Array<T>) {
+  return array.reduce((record: FieldsRecord<T>, field: T) => {
     record[field.name] = { ...field }
     return record
   }, {})
 }
 
-export interface UseForm {
-  initialFields: Array<FieldOptions>
+export interface UseForm<T> {
+  initialFields: Array<T>
   state?: { [key: string]: any } | undefined
 }
 
-export function useForm({ state = {}, initialFields }: UseForm) {
-  const [record, setRecord] = useState<FieldsRecord>({})
-  const [fields, setFields] = useState<Array<FieldOptions>>(initialFields)
+export function useForm<T extends FieldOptions>({ state = {}, initialFields }: UseForm<T>) {
+  const [record, setRecord] = useState<FieldsRecord<T>>({})
+  const [fields, setFields] = useState<Array<T>>(initialFields)
   const [values, setValues] = useState<{ [key: string]: any }>(state)
   const [errors, setErrors] = useState<{ [key: string]: any }>({})
   const [hasSubmitted, setHasSubmitted] = useState<boolean>(false)
@@ -170,12 +169,12 @@ export function useForm({ state = {}, initialFields }: UseForm) {
     }
   }
 
-  function addFields(newFields: Array<FieldOptions>, index: number) {
+  function addFields(newFields: Array<T>, index: number) {
     const updatedFields = [...fields.slice(0, index), ...newFields, ...fields.slice(index)]
     setFields(updatedFields)
   }
 
-  function changeField(fieldOptions: Partial<FieldOptions>, name: string) {
+  function changeField(fieldOptions: Partial<T>, name: string) {
     const updatedRecord = { ...record, [name]: { ...record[name], ...fieldOptions } }
     const updatedFields = recordToArray(updatedRecord)
     setFields(updatedFields)

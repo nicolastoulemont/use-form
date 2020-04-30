@@ -4,13 +4,17 @@ import '@testing-library/jest-dom/extend-expect'
 import { create } from 'react-test-renderer'
 import { useForm, FieldOptions } from '../src'
 
+interface Field extends FieldOptions {
+  label?: string
+}
+
 function BasicComponent() {
   const required = (value: any) =>
     typeof value === 'undefined' || value === '' ? 'Required' : undefined
 
   const hasAbc = (value: any) => (value.includes('abc') ? 'Has abc' : undefined)
 
-  const initialFields: Array<FieldOptions> = [
+  const initialFields: Array<Field> = [
     {
       name: 'reset',
       listener: {
@@ -357,8 +361,6 @@ describe('Testing hook fns', () => {
     const moveField = getByTestId('move-field')
     fireEvent.click(moveField)
     const changed = JSON.stringify(component)
-    console.log(init)
-    console.log(changed)
     expect(init !== changed)
   })
 
