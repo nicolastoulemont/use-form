@@ -57,8 +57,8 @@
     "react-dom": "^16.13.1",
     "react-test-renderer": "^16.13.1",
     "tsdx": "^0.13.2",
-    "tslib": "^1.11.1",
-    "typescript": "^3.8.3"
+    "tslib": "2.0.0",
+    "typescript": "^3.9.2"
   },
   "description": "Generic use-form utility hook with onChange, onBlur, onSubmit listeners possibilities",
   "bugs": {

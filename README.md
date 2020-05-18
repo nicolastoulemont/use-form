@@ -16,9 +16,30 @@ yarn add @nicolastoulemont/use-form
 
 ## Usage
 
-The useForm hook require a object param containing the fields options array and optionally the initial values.
+- Basic usage
 
-The field options must include at least a name property but can be expended to include other field related information such as its label, placeholder, type, etc.
+The useForm hooks is designed withincremental / partial usage of its features in mind. As such, if the form doesn't require validation or fields manipulation it can be used without overhead
+
+```typescript
+export function BasicComponent() {
+  const { values, onChange } = useForm()
+  return (
+    <div>
+      <label>Email</label>
+      <input
+        name="email"
+        value={values['email'] || ''}
+        onChange={({ target: { name, value } }) => onChange({ name, value })}
+      />
+    </div>
+  )
+}
+```
+
+- Field level validation
+
+In order to perform field level validation useForm hook require a object param containing the fields options array and optionally the initial values.
+The field options must include at least a name property but can be extended to include other field related information such as its label, placeholder, type, etc.
 
 ```typescript
 interface Field extends FieldOptions {
@@ -51,14 +72,27 @@ const initialFields: Array<Field> = [
   },
   {
     name: 'first_name',
-    label: 'firs_name_label',
+    label: 'first_name_label',
   },
 ]
 ```
 
-The listener object allow the user to insert an array of functions to be executed either on onChange, onBlur or onSubmit. Such functions have access to the field value.
+- Validation functions
 
-The useForm return a fields array that can then be used as following :
+The listener object allow the user to insert an array of functions to be executed either on onChange, onBlur or onSubmit.
+Theses functions have access to the field value, the form values, the form errors, the form fields, the form hasSubmitted status as params, in this order.
+
+The return value of validations functions is stored on the errors object with the field name as key.
+
+```typescript
+function validationFn(fieldValue, values, errors, fields, hasSubmitted) {
+  // Set validation rule(s)
+}
+```
+
+- Fields manipulation
+
+If given an initial fields array, the useForm return a fields array that can then be used as following :
 
 ```typescript
 interface Field extends FieldOptions {
@@ -113,6 +147,48 @@ export function BasicComponent() {
   )
 }
 ```
+
+The useForm hooks also expose 5 fields manipulation methods on the Fields array
+
+- removeFields
+
+```typescript
+function removeFields(names: Array<string> | string): void
+```
+
+This function will filter out one or more fields based on their names
+
+- addFields
+
+```typescript
+function addFields(newFields: Array<T>, index: number): void
+```
+
+This function insert one or more fields at the give index
+
+- changeField
+
+```typescript
+function changeField(fieldOptions: Partial<T>, name: string): void
+```
+
+This function will update a field selected by name with the given fieldOptions.
+
+- moveField
+
+```typescript
+function moveField(from: number, to: number): void
+```
+
+This function will move a field from one index to another
+
+- resetFields
+
+```typescript
+function resetFields(): void
+```
+
+This function will reset the fields to the initialFields array
 
 ## Api
 

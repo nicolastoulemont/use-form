@@ -34,11 +34,11 @@ export function arrayToRecord<T extends FieldOptions>(array: Array<T>) {
 }
 
 export interface UseForm<T> {
-  initialFields: Array<T>
+  initialFields?: Array<T>
   state?: { [key: string]: any } | undefined
 }
 
-export function useForm<T extends FieldOptions>({ state = {}, initialFields }: UseForm<T>) {
+export function useForm<T extends FieldOptions>({ state = {}, initialFields = [] }: UseForm<T>) {
   const [record, setRecord] = useState<FieldsRecord<T>>({})
   const [fields, setFields] = useState<Array<T>>(initialFields)
   const [values, setValues] = useState<{ [key: string]: any }>(state)
@@ -59,7 +59,7 @@ export function useForm<T extends FieldOptions>({ state = {}, initialFields }: U
     let err: undefined = undefined
     fns.forEach(fn => {
       if (typeof err === 'undefined' && typeof fn === 'function') {
-        err = fn(value)
+        err = fn(value, values, errors, fields, hasSubmitted)
       }
     })
     return err
